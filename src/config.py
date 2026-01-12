@@ -41,7 +41,7 @@ def init_dspy(provider="gemini"): # 預設改用 gemini
         # ✅ 修改點：改用 "gemini-1.5-flash-latest" 或 "gemini-1.5-flash-001"
         # 這樣 litellm 比較容易對應到正確的 Google API 端點
         lm = dspy.LM(
-            model='gemini/gemini-1.5-flash-latest', 
+            model='gemini/gemini-3-flash-preview', 
             api_key=api_key,
             max_tokens=8192,
             temperature=0.0
