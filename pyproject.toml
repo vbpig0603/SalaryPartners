@@ -1,0 +1,20 @@
+[project]
+name = "salarypartners"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dspy-ai>=3.1.0",
+    "google-generativeai>=0.8.6",
+    "langgraph>=1.0.5",
+    "langsmith>=0.6.2",
+    "litellm>=1.80.15",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
