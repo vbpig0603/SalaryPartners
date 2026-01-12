@@ -5,6 +5,7 @@ class WriteCodeSignature(dspy.Signature):
     requirement = dspy.InputField(desc="功能需求描述")
     prev_code = dspy.InputField(desc="目前的程式碼 (如果是修改階段)")
     feedback = dspy.InputField(desc="測試失敗的錯誤訊息 (如果是 None 代表是第一次寫)")
+    file_name = dspy.OutputField(desc="建議的檔案名稱 (例如: 'fibonacci.py')")
     output_code = dspy.OutputField(desc="完整的 Python 程式碼")
 
 class CoderAgent(dspy.Module):

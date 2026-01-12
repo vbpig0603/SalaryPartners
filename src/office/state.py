@@ -6,6 +6,7 @@ class OfficeState(TypedDict):
     requirement: str
     
     # 目前產出的程式碼
+    file_name: Optional[str]
     source_code: Optional[str]
     
     # 目前產出的測試程式碼

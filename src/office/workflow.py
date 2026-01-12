@@ -2,6 +2,7 @@ from langgraph.graph import StateGraph, END
 from src.agents.code_agent import CoderAgent
 from src.agents.qa_agent import QAAgent
 from src.office.state import OfficeState
+from src.tools.file_ops import save_to_playground
 
 # --- 1. 實例化 DSPy 員工 (他們現在坐在位子上了) ---
 coder = CoderAgent()
@@ -18,9 +19,12 @@ def coder_node(state: OfficeState):
         prev_code=state['source_code'],
         feedback=state['test_result']
     )
-    
+
+    save_to_playground(result.file_name, result.output_code)
+
     # 更新卷宗
     return {
+        "file_name": result.file_name,
         "source_code": result.output_code,
         "revision_count": state['revision_count'] + 1
     }
@@ -33,8 +37,13 @@ def qa_node(state: OfficeState):
         requirement=state['requirement'],
         source_code=state['source_code']
     )
-    
-    return {"test_code": result.test_code}
+
+    save_to_playground(result.test_file_name, result.test_code)
+
+    return {
+        "test_file_name": result.test_file_name,
+        "test_code": result.test_code
+    }
 
 def test_runner_node(state: OfficeState):
     print("\n🏃 正在執行測試 (模擬)...")
