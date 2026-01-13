@@ -8,6 +8,7 @@ class OfficeState(TypedDict):
     # 目前產出的程式碼
     file_name: Optional[str]
     source_code: Optional[str]
+    test_file_name: Optional[str]
     
     # 目前產出的測試程式碼
     test_code: Optional[str]
@@ -20,3 +21,5 @@ class OfficeState(TypedDict):
     
     # 下一步該誰做 (用來決定路由)
     next_step: str
+
+    last_worker: str

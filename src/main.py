@@ -1,25 +1,22 @@
-from config import init_dspy
+from config import config
 from office.office_manager import OfficeManager
+import warnings
 
-# 1. 初始化 DSPy 設定
-init_dspy(provider="gemini") 
+# 過濾掉 Pydantic 的序列化警告 (眼不見為淨)
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
+
+config.initialize_dspy()
 
 def main():
-    # 2. 聘請一位辦公室經理 (實例化 Class)
     manager = OfficeManager()
-    
-    # 3. 請經理把辦公室流程架設好 (Compile Graph)
     salary_partners = manager.compile_graph()
 
-    # 4. 指派任務
     initial_state = {
         "requirement": "寫一個 Python 函數計算費波那契數列的第 n 項",
         "revision_count": 0
     }
 
     print("🚀 SalaryPartners 辦公室啟動中...")
-    
-    # 5. 開始運作
     final_state = salary_partners.invoke(initial_state)
 
     print("\n" + "="*30)
