@@ -2,21 +2,29 @@ import dspy
 
 class WriteCodeSignature(dspy.Signature):
     """根據需求與測試結果，撰寫或修正 Python 程式碼。"""
+    # Inputs
     requirement = dspy.InputField(desc="功能需求描述")
-    prev_code = dspy.InputField(desc="目前的程式碼 (如果是修改階段)")
+    technical_spec = dspy.InputField(desc="架構師制定的技術規格 (包含 Class/Method 定義)")
     feedback = dspy.InputField(desc="測試失敗的錯誤訊息 (如果是 None 代表是第一次寫)")
-    file_name = dspy.OutputField(desc="建議的檔案名稱 (例如: 'fibonacci.py')")
-    output_code = dspy.OutputField(desc="完整的 Python 程式碼")
+    ip_code = dspy.InputField(desc="目前的產品程式碼")
+    last_op_code = dspy.InputField(desc="上次生成的產品骨架代碼 (若有)", default="")
+    it_code = dspy.InputField(desc="目前的測試程式碼")
+
+    # Outputs
+    op_code = dspy.OutputField(desc="輸出的產品程式碼")
 
 class CoderAgent(dspy.Module):
     def __init__(self):
         super().__init__()
-        # 使用 ChainOfThought 讓工程師思考架構
         self.prog = dspy.ChainOfThought(WriteCodeSignature)
     
-    def forward(self, requirement, prev_code=None, feedback=None):
+    def forward(self, requirement, technical_spec, feedback, ip_code,
+                last_op_code, it_code):
         return self.prog(
             requirement=requirement,
-            prev_code=prev_code or "",
-            feedback=feedback or "No feedback, this is the first draft."
+            technical_spec=technical_spec,
+            feedback=feedback or "No feedback, this is the first draft.",
+            ip_code=ip_code,
+            last_op_code=last_op_code,
+            it_code=it_code
         )

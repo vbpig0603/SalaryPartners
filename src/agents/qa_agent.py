@@ -7,44 +7,36 @@ class WriteTestSignature(dspy.Signature):
     如果還沒有 Source Code，請根據需求與檔名自行推斷 Import 寫法。
     """
     requirement = dspy.InputField(desc="功能需求")
+    technical_spec = dspy.InputField(desc="架構師制定的技術規格 (包含 Class/Method 定義)")
+    error_feedback = dspy.InputField(desc="上次執行測試發生的錯誤訊息 (若無則為空)", default="")
     
-    # 這裡對應 OfficeManager 傳來的 source_code
-    source_code = dspy.InputField(desc="目前的程式碼 (TDD 第一階段通常為空)", default="")
-    
-    # 這裡對應 OfficeManager 傳來的 src_filename
-    src_filename = dspy.InputField(desc="預期的實作檔名 (例如 'fibonacci.py')，用來寫 import", default="")
-    
+    ip_code = dspy.InputField(desc="目前產品程式碼", default="")
+    it_code = dspy.InputField(desc="目前測試程式碼", default="")
+    last_ot_code = dspy.InputField(desc="上次生成的測試骨架代碼 (若有)", default="")
+
     # Outputs
-    test_file_name = dspy.OutputField(desc="建議的測試檔名 (例如 'test_fibonacci.py')")
-    test_code = dspy.OutputField(desc="Pytest 測試程式碼")
-    
-    # 讓 QA 順便告訴我們它覺得實作檔該叫什麼名字 (如果 src_filename 是空的)
-    suggested_src_filename = dspy.OutputField(desc="如果輸入的 src_filename 是空的，請建議一個實作檔名")
+    ot_code = dspy.OutputField(desc="輸出的測試程式碼")
 
 class QAAgent(dspy.Module):
     def __init__(self):
         super().__init__()
         self.prog = dspy.ChainOfThought(WriteTestSignature)
     
-    # ✅ 關鍵修正：forward 必須接收這三個參數，名稱要跟 OfficeManager 呼叫的一模一樣
-    def forward(self, requirement, source_code, src_filename):
+    def forward(self, requirement, technical_spec, error_feedback, ip_code,
+                it_code, last_ot_code):
         
-        # 簡單的邏輯處理：如果是 None 改成空字串
-        safe_source_code = source_code if source_code else "尚無實作 (TDD Red Phase)"
-        safe_src_filename = src_filename if src_filename else ""
-        
+        safe_spec = technical_spec if technical_spec else "無規格書，請自行發揮"
+        ip_code = ip_code if ip_code else "尚無實作"
+        it_code = it_code if it_code else "尚無實作"
+        last_ot_code = last_ot_code if last_ot_code else "無上次測試代碼"
+
         result = self.prog(
             requirement=requirement,
-            source_code=safe_source_code,
-            src_filename=safe_src_filename
+            technical_spec=safe_spec,
+            error_feedback=error_feedback,
+            ip_code=ip_code,
+            it_code=it_code,
+            last_ot_code=last_ot_code,
         )
-        
-        # 這裡做一個小轉換：
-        # 如果原本有傳檔名，就回傳原本的；如果沒有，就用 QA 建議的
-        final_src_filename = src_filename if src_filename else result.suggested_src_filename
-        
-        # 為了配合 dspy 的回傳格式，我們手動塞一個屬性回去，或者直接依賴 result
-        # 這裡我們利用 Python 動態特性，把 src_filename 掛在 result 上回傳給 Manager
-        result.src_filename = final_src_filename
         
         return result
